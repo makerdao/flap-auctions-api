@@ -1,6 +1,16 @@
-# Flap Auctions API
+# Flap Auctions API (WIP)
 
 This project expose an API to query and bid on Flap auctions
+
+TODO:
+- implement bid endpoint
+- add paginated endpoints
+- add query string param to flaps endpoint for retrieving only active / closed auctions
+- add query string param to flaps endpoint for retrieving auctions bidded from a specific account
+- add endpoint for gas estimation
+- add posibility to unlock and use multiple accounts / choose which account to bid with
+- bundle UI to consume API
+At a minimum UI should display list of active auctions, list of closed auctions and auctions registered account bid on
 
 ## Installation
 
