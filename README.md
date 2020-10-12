@@ -46,7 +46,7 @@ Returns ids and status for flaps auctions, filtered by status, e.g:
 Returns all tends of specified address, e.g:
 
 ```
-{"result": [{"id": 13, "type": "tend", "bid": 1.1, "block": 11031171, "timestamp": 1602378715, "bidder": "0x0000....", "lot": 10000.0, "tx_hash": "0x...."}]}
+{"result": [{"auction_id": 13, "type": "tend", "bid": 1.1, "block": 11031171, "timestamp": 1602378715, "bidder": "0x0000....", "lot": 10000.0, "tx_hash": "0x...."}]}
 ```
 
 ### `GET http://localhost:7777/api/flaps/{id}`

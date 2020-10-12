@@ -31,7 +31,7 @@ class EventsExtractor(object):
 
         block_file = open("./last_block.txt", "r+")
         first_block = int(block_file.read())
-        self.logger.warning(f"las queried block is {first_block}")
+        self.logger.warning(f"last queried block is {first_block}")
 
         while True:
 
@@ -49,7 +49,7 @@ class EventsExtractor(object):
 
                     if isinstance(log, Flapper.TendLog):
                         event = {
-                            'id': log.id,
+                            'auction_id': log.id,
                             'type': 'tend',
                             'bid': float(log.bid),
                             'block': log.block,
@@ -60,7 +60,7 @@ class EventsExtractor(object):
                         }
                     elif isinstance(log, Flapper.DealLog):
                         event = {
-                            'id': log.id,
+                            'auction_id': log.id,
                             'type': 'deal',
                             'block': log.block,
                             'timestamp': self.web3.eth.getBlock(log.block).timestamp,
@@ -69,7 +69,7 @@ class EventsExtractor(object):
                         }
                     elif isinstance(log, Flapper.KickLog):
                         event = {
-                            'id': log.id,
+                            'auction_id': log.id,
                             'type': 'kick',
                             'bid': float(log.bid),
                             'block': log.block,

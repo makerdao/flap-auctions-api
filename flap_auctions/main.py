@@ -43,10 +43,10 @@ class FlapAuctions:
 
     def main(self):
 
-        self.logger.warning("Starting events extractor thread")
+        self.logger.info("Starting events extractor thread")
         EventsExtractor(self.web3, self.arguments.events_query_interval)
 
-        self.logger.warning("Starting web app!!!")
+        self.logger.info("Starting web app!!!")
         application = tornado.web.Application([
             (r"/api/flaps/([^/]*)", FlapAuctionsHandler)
         ])

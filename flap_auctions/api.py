@@ -11,12 +11,16 @@ class FlapAuctionsHandler(tornado.web.RequestHandler):
     logger = logging.getLogger()
 
     def get(self, id):
-        self.logger.info(f"Querying for id {id}")
+        self.logger.info(f"Querying for auction id {id}")
         with get_auctions_db() as db:
             if id:
-                self.write({
-                    'result': db.search(where('id') == int(id))
-                })
+                result = db.search(where('auction_id') == int(id))
+                if not result:
+                    self.send_error(404)
+                else:
+                    self.write({
+                        'result': db.search(where('auction_id') == int(id))
+                    })
             else:
                 status = self.get_argument("status", "", True)
                 if status == "all":
@@ -53,20 +57,20 @@ class FlapAuctionsHandler(tornado.web.RequestHandler):
                 self.logger.info(f"bidding {data['mkr-amount']} on auction {id}")
                 self.write("Bidding")
             else:
-                self.write_error(400)
+                self.send_error(400)
 
     @staticmethod
     def all_auction_response(kicks: []):
         current_time = datetime.datetime.now()
         ttl_minutes_ago = int((current_time - datetime.timedelta(minutes=FLAPPER_TTL_MINUTES)).timestamp())
         return list(map(lambda kick: {
-            'auction_id': kick['id'],
+            'auction_id': kick['auction_id'],
             'status': 'open' if kick['timestamp'] > ttl_minutes_ago else 'closed'
         }, kicks))
 
     @staticmethod
     def filtered_auction_response(kicks: [], status: str):
         return list(map(lambda kick: {
-            'auction_id': kick['id'],
+            'auction_id': kick['auction_id'],
             'status': status
         }, kicks))
