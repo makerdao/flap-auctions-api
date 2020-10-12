@@ -5,8 +5,6 @@ This project expose an API to query and bid on Flap auctions
 TODO:
 - implement bid endpoint
 - add paginated endpoints
-- add query string param to flaps endpoint for retrieving only active / closed auctions
-- add query string param to flaps endpoint for retrieving auctions bidded from a specific account
 - add endpoint for gas estimation
 - add posibility to unlock and use multiple accounts / choose which account to bid with
 - bundle UI to consume API
@@ -35,9 +33,21 @@ usage: flap-auctions-api [-h] --rpc-url RPC_URL [--rpc-timeout RPC_TIMEOUT]
 
 ## API
 
-### `GET http://localhost:7777/api/flaps/`
+### `GET http://localhost:7777/api/flaps/?status=all|open|closed`
 
-Returns all events for all flaps auctions
+Returns ids and status for flaps auctions, filtered by status, e.g:
+
+```
+{"result": [{"auction_id": 1, "status": "closed"}, {"auction_id": 2, "status": "open"}]}
+```
+
+### `GET http://localhost:7777/api/flaps/?address=0x00...`
+
+Returns all tends of specified address, e.g:
+
+```
+{"result": [{"id": 13, "type": "tend", "bid": 1.1, "block": 11031171, "timestamp": 1602378715, "bidder": "0x0000....", "lot": 10000.0, "tx_hash": "0x...."}]}
+```
 
 ### `GET http://localhost:7777/api/flaps/{id}`
 

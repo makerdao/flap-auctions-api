@@ -87,8 +87,8 @@ class EventsExtractor(object):
                     db.close()
 
                 block_file.seek(0)
-                block_file.write(str(last_block))
+                block_file.write(str(last_block + 1))
                 block_file.truncate()
 
-                first_block = last_block
+                first_block = last_block + 1
                 time.sleep(self.interval)
