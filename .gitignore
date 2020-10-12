@@ -1,0 +1,4 @@
+.idea
+_virtualenv
+__pycache__
+last_block.txt

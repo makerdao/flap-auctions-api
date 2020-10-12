@@ -1,0 +1,7 @@
+appdirs == 1.4.3
+tinydb == 3.7.0
+pytz == 2017.3
+numpy == 1.14.0
+texttable == 1.2.1
+babel == 2.6.0
+tornado == 4.5.3
