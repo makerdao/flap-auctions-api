@@ -1,27 +1,23 @@
 import threading
 import time
 import logging
-import os
 
 from web3 import Web3
 from pymaker.deployment import DssDeployment, Flapper
-from flap_auctions.utils import get_auctions_db
+
+from flap_auctions.db_access import DbAdapter
 
 
 class EventsExtractor(object):
 
     logger = logging.getLogger()
 
-    def __init__(self, web3: Web3, interval=1):
+    def __init__(self, web3: Web3, adapter: DbAdapter, interval=1):
         self.web3 = web3
         self.mcd = DssDeployment.from_node(web3=self.web3)
         self.flapper = self.mcd.flapper
         self.interval = interval
-
-        if not os.path.isfile('./last_block.txt'):
-            block_file = open("./last_block.txt", "w")
-            block_file.write("10769102")
-            block_file.close()
+        self.db = adapter
 
         thread = threading.Thread(target=self.run, args=())
         thread.daemon = True
@@ -29,8 +25,7 @@ class EventsExtractor(object):
 
     def run(self):
 
-        block_file = open("./last_block.txt", "r+")
-        first_block = int(block_file.read())
+        first_block = self.db.get_last_block()
         self.logger.warning(f"last queried block is {first_block}")
 
         while True:
@@ -81,14 +76,13 @@ class EventsExtractor(object):
                     if event:
                         events.append(event)
 
-                self.logger.info(f"Events between {first_block} and {last_block} are: {events}")
-                with get_auctions_db() as db:
-                    db.insert_multiple(events)
-                    db.close()
+                if events:
+                    self.logger.info(f"Events between {first_block} and {last_block} are: {events}")
+                    self.db.insert_events(events)
+                else:
+                    self.logger.info(f"No new events between {first_block} and {last_block}")
 
-                block_file.seek(0)
-                block_file.write(str(last_block + 1))
-                block_file.truncate()
+                self.db.save_queried_block(last_block + 1)
 
                 first_block = last_block + 1
                 time.sleep(self.interval)

@@ -2,53 +2,54 @@ import tornado.web, tornado.escape
 import logging
 import datetime
 
-from flap_auctions.utils import get_auctions_db
-from tinydb import where
-
 FLAPPER_TTL_MINUTES=30
+
 
 class FlapAuctionsHandler(tornado.web.RequestHandler):
     logger = logging.getLogger()
 
+    def initialize(self, database):
+        self.db = database
+
     def get(self, id):
         self.logger.info(f"Querying for auction id {id}")
-        with get_auctions_db() as db:
-            if id:
-                result = db.search(where('auction_id') == int(id))
-                if not result:
-                    self.send_error(404)
-                else:
-                    self.write({
-                        'result': db.search(where('auction_id') == int(id))
-                    })
-            else:
-                status = self.get_argument("status", "", True)
-                if status == "all":
-                    kicks = db.search((where('type') == 'kick'))
-                    self.write({
-                        'result': self.all_auction_response(kicks)
-                    })
-                elif status == "open":
-                    current_time = datetime.datetime.now()
-                    ttl_minutes_ago = int((current_time - datetime.timedelta(minutes=FLAPPER_TTL_MINUTES)).timestamp())
-                    kicks = db.search((where('type') == 'kick') & (where('timestamp') > ttl_minutes_ago))
-                    self.write({
-                        'result': self.filtered_auction_response(kicks, 'open')
-                    })
-                elif status == "closed":
-                    current_time = datetime.datetime.now()
-                    ttl_minutes_ago = int((current_time - datetime.timedelta(minutes=FLAPPER_TTL_MINUTES)).timestamp())
-                    kicks = db.search((where('type') == 'kick') & (where('timestamp') < ttl_minutes_ago))
-                    self.write({
-                        'result': self.filtered_auction_response(kicks, 'closed')
-                    })
 
-                address = self.get_argument("address", None, True)
-                if address:
-                    tends = db.search((where('type') == 'tend') & (where('bidder') == address))
-                    self.write({
-                        'result': tends
-                    })
+        if id:
+            result = self.db.get_events(int(id))
+            if not result:
+                self.send_error(404)
+            else:
+                self.write({
+                    'result': result
+                })
+        else:
+            status = self.get_argument("status", "", True)
+            if status == "all":
+                kicks = self.db.get_all_kicks()
+                self.write({
+                    'result': self.all_auction_response(kicks)
+                })
+            elif status == "open":
+                current_time = datetime.datetime.now()
+                ttl_minutes_ago = int((current_time - datetime.timedelta(minutes=FLAPPER_TTL_MINUTES)).timestamp())
+                kicks = self.db.get_kicks(ttl_minutes_ago, False)
+                self.write({
+                    'result': self.filtered_auction_response(kicks, 'open')
+                })
+            elif status == "closed":
+                current_time = datetime.datetime.now()
+                ttl_minutes_ago = int((current_time - datetime.timedelta(minutes=FLAPPER_TTL_MINUTES)).timestamp())
+                kicks = self.db.get_kicks(ttl_minutes_ago, True)
+                self.write({
+                    'result': self.filtered_auction_response(kicks, 'closed')
+                })
+
+            address = self.get_argument("address", None, True)
+            if address:
+                tends = self.db.get_tends(address)
+                self.write({
+                    'result': tends
+                })
 
     def post(self, id):
         if id:
