@@ -1,6 +1,10 @@
 # Flap Auctions API (WIP)
 
-This project expose an API to query and bid on Flap auctions
+This project expose an API to query and bid on Flap auctions.
+By default it saves data in TinyDb database. If started with `--mongo-url` switch then it use MongoDb to store flaps events.
+
+A simple way to stand up a mongodb test instance locally is running in Docker: `docker run -p 27017:27017 --name flaps-mongo -d mongo`.
+To make use of it pass `--mongo-url 'mongodb://localhost:27017/'` to startup script.
 
 TODO:
 - implement bid endpoint
