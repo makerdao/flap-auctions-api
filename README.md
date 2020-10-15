@@ -85,7 +85,7 @@ Place a bid on auction with id {id}. JSON posted should contain MKR amount to bi
 #!/bin/bash
 
 bin/flap-auctions \
-    --rpc-url https://localhost:8545/ \
+    --rpc-url https://mainnet.infura.io/v3/key \
     --eth-from 0x0000....
 ```
 
