@@ -29,6 +29,24 @@ usage: flap-auctions-api [-h] --rpc-url RPC_URL [--rpc-timeout RPC_TIMEOUT]
                          --eth-from ETH_FROM [--http-address HTTP_ADDRESS]
                          [--http-port HTTP_PORT]
                          [--events-query-interval EVENTS_QUERY_INTERVAL]
+                         [--mongo-url MONGO_URL] [--tinydb]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --rpc-url RPC_URL     JSON-RPC host URL
+  --rpc-timeout RPC_TIMEOUT
+                        JSON-RPC timeout (in seconds, default: 10)
+  --eth-from ETH_FROM   Ethereum account from which to send transactions
+  --http-address HTTP_ADDRESS
+                        Address of the Uniswap Price Feed
+  --http-port HTTP_PORT
+                        Port of the Uniswap Price Feed
+  --events-query-interval EVENTS_QUERY_INTERVAL
+                        time window to wait and recheck for events (in
+                        seconds, default: 30)
+  --mongo-url MONGO_URL
+                        MongoDb connection string
+  --tinydb              Use Tinydb
 ```
 
 ## API

@@ -7,9 +7,11 @@ import tornado.web
 from web3 import Web3, HTTPProvider
 
 from flap_auctions.db_access import DbAdapter
-from flap_auctions.tinydb import TinyDbAdapter
 from flap_auctions.events_extractor import EventsExtractor
 from flap_auctions.api import FlapAuctionsHandler
+
+from flap_auctions.tinydb import TinyDbAdapter
+from flap_auctions.mongodb import MongoDbAdapter
 
 
 class FlapAuctions:
@@ -37,6 +39,9 @@ class FlapAuctions:
         parser.add_argument("--events-query-interval", type=int, default=30,
                             help="time window to wait and recheck for events (in seconds, default: 30)")
 
+        parser.add_argument("--mongo-url", type=str, required=False,
+                            help="MongoDb connection string")
+
         parser.add_argument("--tinydb", dest='tinydb', action='store_true', default=True,
                             help="Use Tinydb")
 
@@ -63,7 +68,9 @@ class FlapAuctions:
 class DbAdapterFactory:
     @staticmethod
     def get_db_adapter(arguments) -> DbAdapter:
-        if arguments.tinydb:
+        if arguments.mongo_url:
+            return MongoDbAdapter(arguments.mongo_url)
+        elif arguments.tinydb:
             return TinyDbAdapter()
 
 
