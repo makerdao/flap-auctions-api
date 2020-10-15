@@ -35,54 +35,60 @@ class EventsExtractor(object):
             if last_block > first_block:
                 self.logger.info(f"Retrieving Events between {first_block} and {last_block}")
 
-                history = self.flapper.past_logs(first_block, int(last_block))
+                try:
 
-                events = []
-                for log in history:
+                    history = self.flapper.past_logs(first_block, int(last_block))
 
-                    event = None
+                    events = []
+                    for log in history:
 
-                    if isinstance(log, Flapper.TendLog):
-                        event = {
-                            'auction_id': log.id,
-                            'type': 'tend',
-                            'bid': float(log.bid),
-                            'block': log.block,
-                            'timestamp': self.web3.eth.getBlock(log.block).timestamp,
-                            'bidder': log.guy.address,
-                            'lot': float(log.lot),
-                            'tx_hash': log.tx_hash
-                        }
-                    elif isinstance(log, Flapper.DealLog):
-                        event = {
-                            'auction_id': log.id,
-                            'type': 'deal',
-                            'block': log.block,
-                            'timestamp': self.web3.eth.getBlock(log.block).timestamp,
-                            'dealer': log.usr.address,
-                            'tx_hash': log.tx_hash
-                        }
-                    elif isinstance(log, Flapper.KickLog):
-                        event = {
-                            'auction_id': log.id,
-                            'type': 'kick',
-                            'bid': float(log.bid),
-                            'block': log.block,
-                            'timestamp': self.web3.eth.getBlock(log.block).timestamp,
-                            'lot': float(log.lot),
-                            'tx_hash': log.tx_hash
-                        }
+                        event = None
 
-                    if event:
-                        events.append(event)
+                        if isinstance(log, Flapper.TendLog):
+                            event = {
+                                'auction_id': log.id,
+                                'type': 'tend',
+                                'bid': float(log.bid),
+                                'block': log.block,
+                                'timestamp': self.web3.eth.getBlock(log.block).timestamp,
+                                'bidder': log.guy.address,
+                                'lot': float(log.lot),
+                                'tx_hash': log.tx_hash
+                            }
+                        elif isinstance(log, Flapper.DealLog):
+                            event = {
+                                'auction_id': log.id,
+                                'type': 'deal',
+                                'block': log.block,
+                                'timestamp': self.web3.eth.getBlock(log.block).timestamp,
+                                'dealer': log.usr.address,
+                                'tx_hash': log.tx_hash
+                            }
+                        elif isinstance(log, Flapper.KickLog):
+                            event = {
+                                'auction_id': log.id,
+                                'type': 'kick',
+                                'bid': float(log.bid),
+                                'block': log.block,
+                                'timestamp': self.web3.eth.getBlock(log.block).timestamp,
+                                'lot': float(log.lot),
+                                'tx_hash': log.tx_hash
+                            }
 
-                if events:
-                    self.logger.info(f"Events between {first_block} and {last_block} are: {events}")
-                    self.db.insert_events(events)
-                else:
-                    self.logger.info(f"No new events between {first_block} and {last_block}")
+                        if event:
+                            events.append(event)
 
-                self.db.save_queried_block(last_block + 1)
+                    if events:
+                        self.logger.info(f"Events between {first_block} and {last_block} are: {events}")
+                        self.db.insert_events(events)
+                    else:
+                        self.logger.info(f"No new events between {first_block} and {last_block}")
 
-                first_block = last_block + 1
+                    self.db.save_queried_block(last_block + 1)
+
+                    first_block = last_block + 1
+
+                except Exception:
+                    self.logger.error("Exception in events extractor, retry", exc_info=True)
+
                 time.sleep(self.interval)
