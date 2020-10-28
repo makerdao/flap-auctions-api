@@ -27,9 +27,6 @@ class FlapAuctions:
         parser.add_argument("--rpc-timeout", type=int, default=10,
                             help="JSON-RPC timeout (in seconds, default: 10)")
 
-        parser.add_argument("--eth-from", type=str, required=True,
-                            help="Ethereum account from which to send transactions")
-
         parser.add_argument("--http-address", type=str, default='0.0.0.0',
                             help="Address of the Uniswap Price Feed")
 
@@ -49,7 +46,6 @@ class FlapAuctions:
 
         self.web3 = kwargs['web3'] if 'web3' in kwargs else Web3(HTTPProvider(endpoint_uri=self.arguments.rpc_url,
                                                                               request_kwargs={"timeout": self.arguments.rpc_timeout}))
-        self.web3.eth.defaultAccount = self.arguments.eth_from
 
         self.adapter = DbAdapterFactory.get_db_adapter(self.arguments)
 

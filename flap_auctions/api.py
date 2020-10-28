@@ -1,6 +1,7 @@
 import tornado.web, tornado.escape
 import logging
 import datetime
+import json
 
 FLAPPER_TTL_MINUTES=30
 
@@ -15,63 +16,61 @@ class FlapAuctionsHandler(tornado.web.RequestHandler):
         self.logger.info(f"Querying for auction id {id}")
 
         if id:
-            result = self.db.get_events(int(id))
-            if not result:
-                self.send_error(404)
+            if id == 'events':
+                days_ago_param = int(self.get_argument("daysAgo", 30, True))
+                current_time = datetime.datetime.now()
+                days_ago = int((current_time - datetime.timedelta(days=days_ago_param)).timestamp())
+                result = self.db.get_all_events(days_ago)
+                self.add_event_ids(result)
+                self.write(json.dumps(result))
             else:
-                self.write({
-                    'result': result
-                })
+                result = self.db.get_events(int(id))
+                if not result:
+                    self.send_error(404)
+                else:
+                    self.add_event_ids(result)
+                    self.write(json.dumps(result))
         else:
             status = self.get_argument("status", "", True)
             if status == "all":
                 kicks = self.db.get_all_kicks()
-                self.write({
-                    'result': self.all_auction_response(kicks)
-                })
+                self.write(json.dumps(self.all_auction_response(kicks)))
             elif status == "open":
                 current_time = datetime.datetime.now()
                 ttl_minutes_ago = int((current_time - datetime.timedelta(minutes=FLAPPER_TTL_MINUTES)).timestamp())
                 kicks = self.db.get_kicks(ttl_minutes_ago, False)
-                self.write({
-                    'result': self.filtered_auction_response(kicks, 'open')
-                })
+                self.write(json.dumps(self.filtered_auction_response(kicks, 'open')))
             elif status == "closed":
                 current_time = datetime.datetime.now()
                 ttl_minutes_ago = int((current_time - datetime.timedelta(minutes=FLAPPER_TTL_MINUTES)).timestamp())
                 kicks = self.db.get_kicks(ttl_minutes_ago, True)
-                self.write({
-                    'result': self.filtered_auction_response(kicks, 'closed')
-                })
+                self.write(json.dumps(self.filtered_auction_response(kicks, 'closed')))
 
             address = self.get_argument("address", None, True)
             if address:
                 tends = self.db.get_tends(address)
-                self.write({
-                    'result': tends
-                })
-
-    def post(self, id):
-        if id:
-            data = tornado.escape.json_decode(self.request.body)
-            if 'mkr-amount' in data:
-                self.logger.info(f"bidding {data['mkr-amount']} on auction {id}")
-                self.write("Bidding")
-            else:
-                self.send_error(400)
+                self.write(json.dumps(tends))
 
     @staticmethod
     def all_auction_response(kicks: []):
         current_time = datetime.datetime.now()
         ttl_minutes_ago = int((current_time - datetime.timedelta(minutes=FLAPPER_TTL_MINUTES)).timestamp())
         return list(map(lambda kick: {
-            'auction_id': kick['auction_id'],
+            'auctionId': kick['auctionId'],
             'status': 'open' if kick['timestamp'] > ttl_minutes_ago else 'closed'
         }, kicks))
 
     @staticmethod
     def filtered_auction_response(kicks: [], status: str):
         return list(map(lambda kick: {
-            'auction_id': kick['auction_id'],
+            'auctionId': kick['auctionId'],
             'status': status
         }, kicks))
+
+    @staticmethod
+    def add_event_ids(events: []):
+        current_ids = {}
+        for event in events:
+            auction_id = event['auctionId']
+            current_ids[auction_id] = current_ids.get(auction_id, 0) + 1
+            event['id'] = current_ids[auction_id]

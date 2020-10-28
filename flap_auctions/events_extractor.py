@@ -46,33 +46,35 @@ class EventsExtractor(object):
 
                         if isinstance(log, Flapper.TendLog):
                             event = {
-                                'auction_id': log.id,
-                                'type': 'tend',
-                                'bid': float(log.bid),
-                                'block': log.block,
-                                'timestamp': self.web3.eth.getBlock(log.block).timestamp,
-                                'bidder': log.guy.address,
+                                'auctionId': log.id,
+                                'type': 'Tend',
+                                'hash': log.tx_hash,
+                                'fromAddress': log.guy.address,
                                 'lot': float(log.lot),
-                                'tx_hash': log.tx_hash
+                                'bid': float(log.bid),
+                                'timestamp': self.web3.eth.getBlock(log.block).timestamp,
+                                'block': log.block
                             }
                         elif isinstance(log, Flapper.DealLog):
                             event = {
-                                'auction_id': log.id,
-                                'type': 'deal',
-                                'block': log.block,
+                                'auctionId': log.id,
+                                'type': 'Deal',
+                                'hash': log.tx_hash,
+                                'fromAddress': log.usr.address,
                                 'timestamp': self.web3.eth.getBlock(log.block).timestamp,
-                                'dealer': log.usr.address,
-                                'tx_hash': log.tx_hash
+                                'block': log.block
                             }
                         elif isinstance(log, Flapper.KickLog):
+                            tx_details = self.web3.eth.getTransaction(log.tx_hash)
                             event = {
-                                'auction_id': log.id,
-                                'type': 'kick',
-                                'bid': float(log.bid),
-                                'block': log.block,
-                                'timestamp': self.web3.eth.getBlock(log.block).timestamp,
+                                'auctionId': log.id,
+                                'type': 'Kick',
+                                'hash': log.tx_hash,
+                                'fromAddress': tx_details['from'] if tx_details else "",
                                 'lot': float(log.lot),
-                                'tx_hash': log.tx_hash
+                                'bid': float(log.bid),
+                                'timestamp': self.web3.eth.getBlock(log.block).timestamp,
+                                'block': log.block
                             }
 
                         if event:

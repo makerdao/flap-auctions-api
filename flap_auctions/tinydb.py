@@ -49,7 +49,11 @@ class TinyDbAdapter(DbAdapter):
 
     def get_events(self, auction_id: int):
         with get_auctions_db(self.db_folder) as db:
-            return db.search(where('auction_id') == auction_id)
+            return db.search(where('auctionId') == auction_id)
+
+    def get_all_events(self, days_ago: int):
+        with get_auctions_db(self.db_folder) as db:
+            return db.search(where('timestamp') > days_ago)
 
     def insert_events(self, events: []):
         with get_auctions_db(self.db_folder) as db:
@@ -58,14 +62,14 @@ class TinyDbAdapter(DbAdapter):
 
     def get_all_kicks(self):
         with get_auctions_db(self.db_folder) as db:
-            return db.search((where('type') == 'kick'))
+            return db.search((where('type') == 'Kick'))
 
     def get_kicks(self, minutes_ago: int, expired: bool):
         with get_auctions_db(self.db_folder) as db:
             if expired:
-                return db.search((where('type') == 'kick') & (where('timestamp') < minutes_ago))
-            return db.search((where('type') == 'kick') & (where('timestamp') > minutes_ago))
+                return db.search((where('type') == 'Kick') & (where('timestamp') < minutes_ago))
+            return db.search((where('type') == 'Kick') & (where('timestamp') > minutes_ago))
 
     def get_tends(self, address: str):
         with get_auctions_db(self.db_folder) as db:
-            return db.search((where('type') == 'tend') & (where('bidder') == address))
+            return db.search((where('type') == 'Tend') & (where('fromAddress') == address))

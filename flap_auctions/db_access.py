@@ -12,6 +12,9 @@ class DbAdapter:
     def get_events(self, auction_id: int):
         raise NotImplementedError()
 
+    def get_all_events(self, days_ago: int):
+        raise NotImplementedError()
+
     def insert_events(self, events: []):
         raise NotImplementedError()
 
@@ -23,6 +26,7 @@ class DbAdapter:
 
     def get_tends(self, address: str):
         raise NotImplementedError()
+
 
 
 

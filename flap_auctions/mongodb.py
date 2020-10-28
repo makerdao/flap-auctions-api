@@ -31,7 +31,12 @@ class MongoDbAdapter(DbAdapter):
         self.block_collection.find_one_and_replace({'id': 1}, {'id': 1, 'block': block})
 
     def get_events(self, auction_id: int):
-        cursor = self.flaps_collection.find({'auction_id': auction_id}, {'_id': 0})
+        cursor = self.flaps_collection.find({'auctionId': auction_id}, {'_id': 0})
+        if cursor:
+            return json.loads(JSONEncoder().encode(list(cursor)))
+
+    def get_all_events(self, days_ago: int):
+        cursor = self.flaps_collection.find({'timestamp': {'$gt': days_ago}}, {'_id': 0})
         if cursor:
             return json.loads(JSONEncoder().encode(list(cursor)))
 
@@ -39,12 +44,12 @@ class MongoDbAdapter(DbAdapter):
         self.flaps_collection.insert_many(events)
 
     def get_all_kicks(self):
-        return self.flaps_collection.find({'type': 'kick'}, {'_id': 0})
+        return self.flaps_collection.find({'type': 'Kick'}, {'_id': 0})
 
     def get_kicks(self, minutes_ago: int, expired: bool):
-        return self.flaps_collection.find({'$and': [{'type': 'kick'}, {'timestamp': {'$lt' if expired else '$gt': minutes_ago}}]}, {'_id': 0})
+        return self.flaps_collection.find({'$and': [{'type': 'Kick'}, {'timestamp': {'$lt' if expired else '$gt': minutes_ago}}]}, {'_id': 0})
 
     def get_tends(self, address: str):
-        cursor = self.flaps_collection.find({'$and': [{'type': 'tend'}, {'bidder': address}]}, {'_id': 0})
+        cursor = self.flaps_collection.find({'$and': [{'type': 'Tend'}, {'fromAddress': address}]}, {'_id': 0})
         if cursor:
             return json.loads(JSONEncoder().encode(list(cursor)))
