@@ -6,13 +6,6 @@ By default it saves data in TinyDb database. If started with `--mongo-url` switc
 A simple way to stand up a mongodb test instance locally is running in Docker: `docker run -p 27017:27017 --name flaps-mongo -d mongo`.
 To make use of it pass `--mongo-url 'mongodb://localhost:27017/'` to startup script.
 
-TODO:
-- implement bid endpoint
-- add paginated endpoints
-- add endpoint for gas estimation
-- add posibility to unlock and use multiple accounts / choose which account to bid with
-- bundle UI to consume API
-At a minimum UI should display list of active auctions, list of closed auctions and auctions registered account bid on
 
 ## Installation
 
@@ -30,7 +23,6 @@ git submodule update --init --recursive
 
 ```
 usage: flap-auctions-api [-h] --rpc-url RPC_URL [--rpc-timeout RPC_TIMEOUT]
-                         --eth-from ETH_FROM [--http-address HTTP_ADDRESS]
                          [--http-port HTTP_PORT]
                          [--events-query-interval EVENTS_QUERY_INTERVAL]
                          [--mongo-url MONGO_URL] [--tinydb]
@@ -41,9 +33,9 @@ optional arguments:
   --rpc-timeout RPC_TIMEOUT
                         JSON-RPC timeout (in seconds, default: 10)
   --http-address HTTP_ADDRESS
-                        Address of the Uniswap Price Feed
+                        Address of the Flap API
   --http-port HTTP_PORT
-                        Port of the Uniswap Price Feed
+                        Port of the Flap API
   --events-query-interval EVENTS_QUERY_INTERVAL
                         time window to wait and recheck for events (in
                         seconds, default: 30)
@@ -201,7 +193,7 @@ E.g. for http://localhost:7777/api/flaps/events?daysAgo=2
 
 ### `GET http://localhost:7777/api/flaps/?address=0x00...`
 
-Returns all tends of specified address, e.g for http://localhost:7777/api/flaps/?address=0x45Bf77c71174F361559BAa6093a567EbF87fCc1A:
+Returns all tends of specified address, e.g for http://localhost:7777/api/flaps/?address=0xblah...:
 
 ```
 [
