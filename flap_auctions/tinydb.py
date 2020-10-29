@@ -21,9 +21,10 @@ def get_block_file(db_folder):
 
 class TinyDbAdapter(DbAdapter):
 
-    def __init__(self):
+    def __init__(self, intial_block: int):
 
         self.db_folder = user_cache_dir("flaps", "maker")
+        self.intial_block = intial_block
 
         try:
             os.makedirs(self.db_folder)
@@ -34,8 +35,15 @@ class TinyDbAdapter(DbAdapter):
         self.block_file = get_block_file(self.db_folder)
         if not os.path.isfile(self.block_file):
             block_file = open(self.block_file, "w")
-            block_file.write("10769102")
+            block_file.write(str(intial_block))
             block_file.close()
+
+    def cleanup(self):
+        os.remove(os.path.join(user_cache_dir("flaps", "maker"), "auctions.txdb"))
+
+        block_file = open(self.block_file, "w")
+        block_file.write(str(self.intial_block))
+        block_file.close()
 
     def get_last_block(self) -> int:
         block_file = open(self.block_file, "r")

@@ -3,6 +3,9 @@ class DbAdapter:
     Define a common interface for database adapters
     """
 
+    def cleanup(self) -> int:
+        raise NotImplementedError()
+
     def get_last_block(self) -> int:
         raise NotImplementedError()
 

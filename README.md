@@ -23,8 +23,9 @@ git submodule update --init --recursive
 
 ```
 usage: flap-auctions-api [-h] --rpc-url RPC_URL [--rpc-timeout RPC_TIMEOUT]
-                         [--http-port HTTP_PORT]
+                         [--http-address HTTP_ADDRESS] [--http-port HTTP_PORT]
                          [--events-query-interval EVENTS_QUERY_INTERVAL]
+                         [--sync-from-block SYNC_FROM_BLOCK] [--resync]
                          [--mongo-url MONGO_URL] [--tinydb]
 
 optional arguments:
@@ -35,10 +36,14 @@ optional arguments:
   --http-address HTTP_ADDRESS
                         Address of the Flap API
   --http-port HTTP_PORT
-                        Port of the Flap API
+                        Port of the Flap API (default: 7777)
   --events-query-interval EVENTS_QUERY_INTERVAL
                         time window to wait and recheck for events (in
                         seconds, default: 30)
+  --sync-from-block SYNC_FROM_BLOCK
+                        Block to start syncing from (default: 10769102)
+  --resync              Resync all events from the sync-from-block value to
+                        current block. Existing entries in db will be removed
   --mongo-url MONGO_URL
                         MongoDb connection string
   --tinydb              Use Tinydb
@@ -220,7 +225,9 @@ Returns all tends of specified address, e.g for http://localhost:7777/api/flaps/
 ]
 ```
 
-## Sample startup script
+## Sample startup scripts
+
+Sync events from default block (10769102):
 
 ```
 #!/bin/bash
@@ -229,3 +236,23 @@ bin/flap-auctions \
     --rpc-url https://mainnet.infura.io/v3/key
 ```
 
+Drop database and sync events from block 11065593:
+
+```
+#!/bin/bash
+
+bin/flap-auctions \
+    --rpc-url https://mainnet.infura.io/v3/key \
+    --sync-from-block 11065593 \
+    --resync
+```
+
+Sync events and store them in MongoDB:
+
+```
+#!/bin/bash
+
+bin/flap-auctions \
+    --rpc-url https://mainnet.infura.io/v3/key \
+    --mongo-url 'mongodb://localhost:27017/'
+```

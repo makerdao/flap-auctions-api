@@ -14,17 +14,22 @@ class JSONEncoder(json.JSONEncoder):
 
 class MongoDbAdapter(DbAdapter):
 
-    def __init__(self, mongo_url: str):
+    def __init__(self, mongo_url: str, intial_block: int):
         mongo_client = pymongo.MongoClient(mongo_url)
         db = mongo_client["auctions"]
+        self.intial_block = intial_block
         self.flaps_collection = db["flaps"]
         self.block_collection = db["block"]
+
+    def cleanup(self):
+        self.flaps_collection.drop()
+        self.block_collection.drop()
 
     def get_last_block(self) -> int:
         block = self.block_collection.find_one()
         if not block:
-            self.block_collection.insert({'id': 1, 'block': 10769102})
-            return 10769102
+            self.block_collection.insert({'id': 1, 'block': self.intial_block})
+            return self.intial_block
         return block['block']
 
     def save_queried_block(self, block: int):
