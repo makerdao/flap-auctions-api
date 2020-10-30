@@ -39,7 +39,9 @@ class TinyDbAdapter(DbAdapter):
             block_file.close()
 
     def cleanup(self):
-        os.remove(os.path.join(user_cache_dir("flaps", "maker"), "auctions.txdb"))
+        db_file = os.path.join(user_cache_dir("flaps", "maker"), "auctions.txdb")
+        if os.path.exists(db_file):
+            os.remove(db_file)
 
         block_file = open(self.block_file, "w")
         block_file.write(str(self.intial_block))
