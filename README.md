@@ -49,6 +49,12 @@ optional arguments:
   --tinydb              Use Tinydb
 ```
 
+##### For building and running as Docker image:
+- clone repo and run `git submodule update --init --recursive`
+- build image: `docker build -t makerdao/flaps-api .`  
+- run container: `docker run -p 7777:7777 --name="flaps-api" makerdao/flaps-api --rpc-url http://localhost:8545/ --sync-from-block 11238000`
+
+
 ## API
 
 ### `GET http://localhost:7777/api/flaps/?status=all|open|closed`
