@@ -22,7 +22,9 @@ git submodule update --init --recursive
 ## Running
 
 ```
-usage: flap-auctions-api [-h] --rpc-url RPC_URL [--rpc-timeout RPC_TIMEOUT]
+usage: flap-auctions-api [-h] --rpc-url RPC_URL
+                         [--backup-rpc-url BACKUP_RPC_URL]
+                         [--rpc-timeout RPC_TIMEOUT]
                          [--http-address HTTP_ADDRESS] [--http-port HTTP_PORT]
                          [--events-query-interval EVENTS_QUERY_INTERVAL]
                          [--sync-from-block SYNC_FROM_BLOCK] [--resync]
@@ -31,6 +33,9 @@ usage: flap-auctions-api [-h] --rpc-url RPC_URL [--rpc-timeout RPC_TIMEOUT]
 optional arguments:
   -h, --help            show this help message and exit
   --rpc-url RPC_URL     JSON-RPC host URL
+  --backup-rpc-url BACKUP_RPC_URL
+                        JSON-RPC backup host URL. If not specified process
+                        will retry to connect to JSON-RPC host URL
   --rpc-timeout RPC_TIMEOUT
                         JSON-RPC timeout (in seconds, default: 10)
   --http-address HTTP_ADDRESS
@@ -240,6 +245,16 @@ Sync events from default block (10769102):
 
 bin/flap-auctions \
     --rpc-url https://mainnet.infura.io/v3/key
+```
+
+Sync events from default block using a JSON RPC backup url:
+
+```
+#!/bin/bash
+
+bin/flap-auctions \
+    --rpc-url https://mainnet.infura.io/v3/key \
+    --backup-rpc-url http://localhost:8545/
 ```
 
 Drop database and sync events from block 11065593:

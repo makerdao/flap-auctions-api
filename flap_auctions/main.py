@@ -19,8 +19,6 @@ import sys
 import tornado.ioloop
 import tornado.web
 
-from web3 import Web3, HTTPProvider
-
 from flap_auctions.db_access import DbAdapter
 from flap_auctions.events_extractor import EventsExtractor
 from flap_auctions.api import FlapAuctionsHandler
@@ -38,6 +36,10 @@ class FlapAuctions:
 
         parser.add_argument("--rpc-url", type=str, required=True,
                             help="JSON-RPC host URL")
+
+        parser.add_argument("--backup-rpc-url", type=str, required=False,
+                            help="JSON-RPC backup host URL. "
+                                 "If not specified process will retry to connect to JSON-RPC host URL")
 
         parser.add_argument("--rpc-timeout", type=int, default=10,
                             help="JSON-RPC timeout (in seconds, default: 10)")
@@ -66,9 +68,6 @@ class FlapAuctions:
 
         self.arguments = parser.parse_args(args)
 
-        self.web3 = kwargs['web3'] if 'web3' in kwargs else Web3(HTTPProvider(endpoint_uri=self.arguments.rpc_url,
-                                                                              request_kwargs={"timeout": self.arguments.rpc_timeout}))
-
         self.adapter = DbAdapterFactory.get_db_adapter(self.arguments)
 
     def main(self):
@@ -77,7 +76,7 @@ class FlapAuctions:
             self.adapter.cleanup()
 
         self.logger.info("Starting events extractor thread")
-        EventsExtractor(self.web3, self.adapter, self.arguments.events_query_interval)
+        EventsExtractor(self.arguments, self.adapter)
 
         self.logger.info("Starting web app!!!")
         application = tornado.web.Application([

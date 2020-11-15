@@ -16,8 +16,9 @@
 import threading
 import time
 import logging
+import requests
 
-from web3 import Web3
+from web3 import Web3, HTTPProvider
 from pymaker.deployment import DssDeployment, Flapper
 
 from flap_auctions.db_access import DbAdapter
@@ -27,30 +28,46 @@ class EventsExtractor(object):
 
     logger = logging.getLogger()
 
-    def __init__(self, web3: Web3, adapter: DbAdapter, interval=1):
-        self.web3 = web3
-        self.mcd = DssDeployment.from_node(web3=self.web3)
-        self.flapper = self.mcd.flapper
-        self.interval = interval
+    def __init__(self, arguments, adapter: DbAdapter):
+        self.rpc_url = arguments.rpc_url
+        self.backup_rpc_url = arguments.backup_rpc_url if arguments.backup_rpc_url else arguments.rpc_url
+        self.rpc_timeout = arguments.rpc_timeout
+        self.interval = arguments.events_query_interval
         self.db = adapter
+
+        self.connect()
 
         thread = threading.Thread(target=self.run, args=())
         thread.daemon = True
         thread.start()
 
-    def run(self):
+    def connect(self):
 
+        try:
+            primary_url = self.rpc_url
+            backup_url = self.backup_rpc_url
+
+            self.web3 = Web3(HTTPProvider(endpoint_uri=primary_url, request_kwargs={"timeout": self.rpc_timeout}))
+            self.mcd = DssDeployment.from_node(web3=self.web3)
+            self.flapper = self.mcd.flapper
+
+            self.rpc_url = backup_url
+            self.backup_rpc_url = primary_url
+        except requests.exceptions.ConnectionError:
+            self.logger.error(f"Failed to connect to node!")
+
+    def run(self):
         first_block = self.db.get_last_block()
         self.logger.warning(f"last queried block is {first_block}")
 
         while True:
 
-            last_block = self.web3.eth.getBlock('latest').number
+            try:
 
-            if last_block > first_block:
-                self.logger.info(f"Retrieving Events between {first_block} and {last_block}")
+                last_block = self.web3.eth.getBlock('latest').number
 
-                try:
+                if last_block > first_block:
+                    self.logger.info(f"Retrieving Events between {first_block} and {last_block}")
 
                     history = self.flapper.past_logs(first_block, int(last_block))
 
@@ -105,7 +122,10 @@ class EventsExtractor(object):
 
                     first_block = last_block + 1
 
-                except Exception:
-                    self.logger.error("Exception in events extractor, retry", exc_info=True)
+            except requests.exceptions.ConnectionError:
+                self.logger.error(f"Connection to {self.backup_rpc_url} failed, reconnecting to {self.rpc_url}!")
+                self.connect()
+            except:
+                self.logger.error("Exception in events extractor, retry", exc_info=True)
 
-                time.sleep(self.interval)
+            time.sleep(self.interval)
