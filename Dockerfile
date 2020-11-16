@@ -2,7 +2,7 @@ FROM python:3.6.6
 
 RUN groupadd -r maker && useradd --no-log-init -r -g maker maker
 
-WORKDIR /home/maker/flap-auctions-ui
+WORKDIR /home/maker/flap-auctions-api
 
 COPY bin bin
 COPY lib lib
