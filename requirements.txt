@@ -5,5 +5,4 @@ numpy == 1.14.0
 texttable == 1.2.1
 babel == 2.6.0
 tornado == 4.5.3
-pymongo == 3.11.0
 pymongo[srv]
