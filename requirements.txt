@@ -6,6 +6,6 @@ texttable == 1.2.1
 babel == 2.6.0
 tornado == 4.5.3
 pymongo[srv]
-requests == 2.17.3
+requests == 2.22.0
 web3 == 5.12.0
 git+https://github.com/makerdao/pymaker@master#egg=pymaker
