@@ -13,8 +13,8 @@ jobs:
     env:
       REGION: us-east-1
       CLUSTER_NAME: maker-prod
-      SERVICE_NAME: flaps-api
-      AWS_ECR_NAME: flaps-api
+      SERVICE_NAME: flap-auctions-api
+      AWS_ECR_NAME: flap-auctions-api
       ENVIRONMENT_TAG: prod
 
     steps:
