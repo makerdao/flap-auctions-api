@@ -12,6 +12,8 @@ image:
   repository: ${ECR_REGISTRY}/flap-auctions-api
   pullPolicy: Always
   tag: prod
+command:
+  - bin/run.sh
 serviceAccount:
   create: false
 ingress:
