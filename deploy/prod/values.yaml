@@ -43,9 +43,9 @@ env:
     parameter_name: /eks/maker-prod/flap-auctions-api/mongo-url
 externalSecrets:
   clusterSecretStoreName: maker-prod
-readinessProbe:
-  tcpSocket:
-    port: 7777
-livenessProbe:
-  tcpSocket:
-    port: 7777
+# readinessProbe:
+#   tcpSocket:
+#     port: 7777
+# livenessProbe:
+#   tcpSocket:
+#     port: 7777
