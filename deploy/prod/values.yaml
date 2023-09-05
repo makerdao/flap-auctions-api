@@ -50,7 +50,7 @@ livenessProbe:
     command:
       - /bin/bash
       - -c
-      - ps -ef | grep flap-auctions | grep -v grep
+      - ps -ef | grep flap_auctions.main | grep -v grep
   initialDelaySeconds: 5
   periodSeconds: 30
 readinessProbe:
@@ -58,6 +58,6 @@ readinessProbe:
     command:
       - /bin/bash
       - -c
-      - ps -ef | grep flap-auctions | grep -v grep
+      - ps -ef | grep flap_auctions.main | grep -v grep
   initialDelaySeconds: 5
   periodSeconds: 30
