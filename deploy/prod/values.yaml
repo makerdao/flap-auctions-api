@@ -1,0 +1,51 @@
+replicaCount: 1
+service:
+  enabled: true
+  name: flap-auctions-api
+  port: 7777
+  type: ClusterIP
+  containerPort: 7777
+  tls:
+    enabled: true
+    issuerName: cloudflare
+image:
+  repository: ${ECR_REGISTRY}/flap-auctions-api
+  pullPolicy: Always
+  tag: prod
+serviceAccount:
+  create: false
+ingress:
+  enabled: true
+  host: flaps-api.maker-auctions.com
+  annotations:
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
+podAnnotations:
+  reloader.stakater.com/auto: "true"
+resources:
+  limits:
+    cpu: 1
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+env:
+  RPC_URL:
+    type: parameterStore
+    name: rpc-url
+    parameter_name: /eks/maker-prod/flap-auctions-api/rpc-url
+  BACKUP_RPC_URL:
+    type: parameterStore
+    name: backup-rpc-url
+    parameter_name: /eks/maker-prod/flap-auctions-api/backup-rpc-url
+  MONGO_URL:
+    type: parameterStore
+    name: mongo-url
+    parameter_name: /eks/maker-prod/flap-auctions-api/mongo-url
+externalSecrets:
+  clusterSecretStoreName: maker-prod
+readinessProbe:
+  tcpSocket:
+    port: 7777
+livenessProbe:
+  tcpSocket:
+    port: 7777
